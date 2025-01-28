@@ -6,17 +6,18 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Current File",
+            "name": "Main",
             "request": "launch",
-            "mainClass": "${file}"
+            "mainClass": "Main",
+            "projectName": "multimedia_ad5d828a",
+            "vmArgs": "--module-path /home/COTARELO/bfernandez1/Downloads/javafx-sdk-21.0.5/lib/ --add-modules javafx.controls,javafx.fxml,javafx.media,javafx.base,javafx.graphics,javafx.swing"
+
         },
         {
             "type": "java",
-            "name": "App",
+            "name": "Current File",
             "request": "launch",
-            "mainClass": "App",
-            "projectName": "multimedia_ad5d828a",
-            "vmArgs": "--module-path /path/to/javafx-sdk-21.0.5/lib --add-modules javafx.controls,javafx.fxml"
+            "mainClass": "${file}"
         }
     ]
 }
