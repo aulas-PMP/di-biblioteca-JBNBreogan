@@ -23,7 +23,20 @@ public class marcoController {
     @FXML
     private MediaView mediaView;
 
+    @FXML
+    private Label mediaTtleLabel;
+
     private MediaPlayer mediaPlayer;
+
+    @FXML
+    private void initialize() {
+        // Asegúrate de que el MediaPlayer actualice la etiqueta de duración
+        if (mediaPlayer != null) {
+            configureMediaPlayer();
+        }
+        mediaTtleLabel.setText("");
+        lblDuration.setText("00:00 / 00:00");
+    }
 
     @FXML
     void btnPlay(MouseEvent event) {
@@ -42,7 +55,11 @@ public class marcoController {
 
     @FXML
     void btnStop(MouseEvent event) {
-
+        if (mediaPlayer != null) {
+            mediaPlayer.stop(); // Detiene la reproducción y resetea el estado del MediaPlayer
+            lblDuration.setText("00:00 / 00:00"); // Reinicia el texto de la etiqueta
+            btnPlay.setText("Play"); // Asegúrate de que el botón vuelva a mostrar "Play"
+        }
     }
 
     @FXML
@@ -50,37 +67,73 @@ public class marcoController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleccionar archivo de media");
 
-        // Establecer el directorio inicial a la carpeta "media" dentro del proyecto
         File mediaFolder = new File("media");
         if (mediaFolder.exists()) {
             fileChooser.setInitialDirectory(mediaFolder);
         }
 
-        // Filtrar los archivos para mostrar solo los de tipo media (por ejemplo, .mp4,
-        // .mp3)
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Archivos de media (*.mp4, *.mp3)",
                 "*.mp4", "*.mp3");
         fileChooser.getExtensionFilters().add(extFilter);
 
-        // Mostrar el diálogo de selección de archivos
         Stage stage = (Stage) mediaView.getScene().getWindow();
         File selectedFile = fileChooser.showOpenDialog(stage);
 
         if (selectedFile != null) {
-            // Cargar el archivo seleccionado en el MediaPlayer
             Media media = new Media(selectedFile.toURI().toString());
             if (mediaPlayer != null) {
                 mediaPlayer.dispose();
             }
+
             mediaPlayer = new MediaPlayer(media);
             mediaView.setMediaPlayer(mediaPlayer);
 
-            Scene scene = mediaView.getScene();
-            mediaView.fitWidthProperty().bind(scene.widthProperty());
-            mediaView.fitHeightProperty().bind(scene.heightProperty());
+            // Configurar MediaPlayer
+            configureMediaPlayer();
 
-            // Opcional: Reproducir automáticamente el archivo seleccionado
+            // Ajustar el tamaño del MediaView según el BorderPane
+            mediaView.fitWidthProperty().bind(mediaView.getScene().widthProperty());
+            mediaView.fitHeightProperty().bind(mediaView.getScene().heightProperty());
+
+            mediaPlayer.setOnPlaying(() -> btnPlay.setText("Pause"));
+
             mediaPlayer.setAutoPlay(true);
+
+            String fileName = selectedFile.getName();
+            String title = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
+            mediaTtleLabel.setText(title);
+        }
+    }
+
+    private void configureMediaPlayer() {
+        mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
+            // Actualiza la etiqueta lblDuration con el tiempo actual y la duración total
+            updateDurationLabel();
+        });
+
+        mediaPlayer.setOnReady(() -> {
+            // Inicializa la etiqueta cuando el archivo esté listo
+            updateDurationLabel();
+        });
+    }
+
+    private void updateDurationLabel() {
+        if (mediaPlayer != null) {
+            String currentTime = formatTime(mediaPlayer.getCurrentTime().toSeconds());
+            String totalTime = formatTime(mediaPlayer.getTotalDuration().toSeconds());
+            lblDuration.setText(currentTime + " / " + totalTime);
+        }
+    }
+
+    private String formatTime(double seconds) {
+        int hours = (int) seconds / 3600;
+        int minutes = (int) (seconds % 3600) / 60;
+        int secs = (int) seconds % 60;
+
+        if (hours > 0) {
+            return String.format("%02d:%02d:%02d", hours, minutes, secs);
+        } else {
+            return String.format("%02d:%02d", minutes, secs);
         }
     }
 }

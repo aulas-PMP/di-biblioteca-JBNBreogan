@@ -15,7 +15,7 @@ public class Main extends Application {
         // Configura la escena y el escenario
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Mi Aplicación JavaFX");
+        primaryStage.setTitle("Youtube.com");
         primaryStage.show();
     }
 
