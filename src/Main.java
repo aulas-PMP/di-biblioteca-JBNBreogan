@@ -23,4 +23,3 @@ public class Main extends Application {
         launch(args); // Inicia la aplicación
     }
 }
-

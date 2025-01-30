@@ -1,11 +1,16 @@
 import java.io.File;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -26,16 +31,48 @@ public class marcoController {
     @FXML
     private Label mediaTtleLabel;
 
+    @FXML
+    private ProgressBar pgBar;
+
+    @FXML
+    private ListView<String> recentMedia;
+
     private MediaPlayer mediaPlayer;
+
+    private DoubleProperty progress = new SimpleDoubleProperty(0.0);
+
+    @FXML
+    private HBox mediaBox;
 
     @FXML
     private void initialize() {
-        // Asegúrate de que el MediaPlayer actualice la etiqueta de duración
-        if (mediaPlayer != null) {
-            configureMediaPlayer();
-        }
         mediaTtleLabel.setText("");
         lblDuration.setText("00:00 / 00:00");
+
+        // Manejar clic en la lista de recientes
+        recentMedia.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) { // Doble clic para reproducir
+                String selectedFileName = recentMedia.getSelectionModel().getSelectedItem();
+                if (selectedFileName != null) {
+                    playRecentMedia(selectedFileName);
+                }
+            }
+        });
+
+        pgBar.setOnMouseClicked(event -> {
+            if (mediaPlayer != null) {
+                // Obtener el clic horizontal en la ProgressBar
+                double clickPosition = event.getX();
+                // Calcular el porcentaje del progreso que se hace clic
+                double progressPercentage = clickPosition / pgBar.getWidth();
+                // Obtener la duración total del video
+                double totalDuration = mediaPlayer.getTotalDuration().toSeconds();
+                // Calcular la nueva posición de tiempo en el video
+                double newTime = progressPercentage * totalDuration;
+                // Establecer el tiempo en el MediaPlayer
+                mediaPlayer.seek(javafx.util.Duration.seconds(newTime));
+            }
+        });
     }
 
     @FXML
@@ -72,8 +109,8 @@ public class marcoController {
             fileChooser.setInitialDirectory(mediaFolder);
         }
 
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Archivos de media (*.mp4, *.mp3)",
-                "*.mp4", "*.mp3");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+                "Archivos de media (*.mp4, *.mp3)", "*.mp4", "*.mp3");
         fileChooser.getExtensionFilters().add(extFilter);
 
         Stage stage = (Stage) mediaView.getScene().getWindow();
@@ -91,29 +128,43 @@ public class marcoController {
             // Configurar MediaPlayer
             configureMediaPlayer();
 
-            // Ajustar el tamaño del MediaView según el BorderPane
-            mediaView.fitWidthProperty().bind(mediaView.getScene().widthProperty());
-            mediaView.fitHeightProperty().bind(mediaView.getScene().heightProperty());
-
-            mediaPlayer.setOnPlaying(() -> btnPlay.setText("Pause"));
-
-            mediaPlayer.setAutoPlay(true);
-
+            // Obtener el nombre del archivo sin extensión
             String fileName = selectedFile.getName();
             String title = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
             mediaTtleLabel.setText(title);
+
+            // Agregar el archivo a la lista de recientes (si no está repetido)
+            if (!recentMedia.getItems().contains(fileName)) {
+                recentMedia.getItems().add(fileName);
+            }
+
+            // Reproducir automáticamente
+            mediaPlayer.setOnPlaying(() -> btnPlay.setText("Pause"));
+            mediaPlayer.setAutoPlay(true);
         }
     }
 
     private void configureMediaPlayer() {
         mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
-            // Actualiza la etiqueta lblDuration con el tiempo actual y la duración total
+            // Actualiza la etiqueta de duración
             updateDurationLabel();
+
+            // Sincronizar ProgressBar con el tiempo actual del MediaPlayer
+            double currentTime = newValue.toSeconds();
+            double totalDuration = mediaPlayer.getTotalDuration().toSeconds();
+            if (totalDuration > 0) {
+                progress.set(currentTime / totalDuration);
+            }
         });
 
-        mediaPlayer.setOnReady(() -> {
-            // Inicializa la etiqueta cuando el archivo esté listo
-            updateDurationLabel();
+        // Enlazar el ProgressBar con la propiedad de progreso
+        pgBar.progressProperty().bind(progress);
+
+        mediaPlayer.setOnReady(this::updateDurationLabel);
+
+        mediaPlayer.setOnEndOfMedia(() -> {
+            progress.set(0); // Reiniciar progreso al finalizar
+            lblDuration.setText("00:00 / 00:00"); // Reiniciar etiqueta de tiempo
         });
     }
 
@@ -135,5 +186,35 @@ public class marcoController {
         } else {
             return String.format("%02d:%02d", minutes, secs);
         }
+    }
+
+    private void playRecentMedia(String fileName) {
+        File mediaFolder = new File("media");
+        if (!mediaFolder.exists() || !mediaFolder.isDirectory()) {
+            System.out.println("La carpeta de medios no existe.");
+            return;
+        }
+
+        // Buscar el archivo en la carpeta "media"
+        File selectedFile = new File(mediaFolder, fileName);
+        if (!selectedFile.exists()) {
+            System.out.println("Archivo no encontrado: " + selectedFile.getAbsolutePath());
+            return;
+        }
+
+        // Crear y configurar el MediaPlayer
+        Media media = new Media(selectedFile.toURI().toString());
+        if (mediaPlayer != null) {
+            mediaPlayer.dispose();
+        }
+
+        mediaPlayer = new MediaPlayer(media);
+        mediaView.setMediaPlayer(mediaPlayer);
+        configureMediaPlayer();
+
+        // Actualizar la UI
+        mediaTtleLabel.setText(fileName);
+        mediaPlayer.setOnPlaying(() -> btnPlay.setText("Pause"));
+        mediaPlayer.setAutoPlay(true);
     }
 }

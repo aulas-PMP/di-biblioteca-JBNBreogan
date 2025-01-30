@@ -33,15 +33,16 @@
 -->
 
 <?import javafx.geometry.Insets?>
+<?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.media.MediaView?>
 
@@ -54,7 +55,7 @@
                   <Insets left="15.0" right="15.0" />
                </padding>
                <children>
-                  <ProgressBar maxWidth="1.7976931348623157E308" prefHeight="9.0" prefWidth="771.0" progress="0.0" HBox.hgrow="ALWAYS" />
+                  <ProgressBar fx:id="pgBar" maxWidth="1.7976931348623157E308" prefHeight="9.0" prefWidth="771.0" progress="0.0" HBox.hgrow="ALWAYS" />
                </children>
             </HBox>
             <HBox alignment="CENTER" prefHeight="80.0" prefWidth="801.0" spacing="10.0">
@@ -69,32 +70,28 @@
       </VBox>
    </bottom>
    <top>
-      <VBox prefHeight="7.0" prefWidth="801.0" BorderPane.alignment="CENTER">
+      <VBox BorderPane.alignment="CENTER">
          <children>
-            <HBox prefHeight="25.0" prefWidth="801.0">
-               <children>
-                  <MenuBar HBox.hgrow="ALWAYS">
-                    <menus>
-                      <Menu mnemonicParsing="false" text="File">
-                        <items>
-                          <MenuItem mnemonicParsing="false" text="Close" />
-                        </items>
-                      </Menu>
-                      <Menu mnemonicParsing="false" text="Edit">
-                        <items>
-                          <MenuItem mnemonicParsing="false" text="Delete" />
-                        </items>
-                      </Menu>
-                      <Menu mnemonicParsing="false" text="Help">
-                        <items>
-                          <MenuItem mnemonicParsing="false" text="About" />
-                        </items>
-                      </Menu>
-                    </menus>
-                  </MenuBar>
-               </children>
-            </HBox>
-            <HBox alignment="CENTER" prefHeight="9.0" prefWidth="801.0">
+            <MenuBar>
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Close" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Delete" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="About" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+            <HBox alignment="CENTER">
                <children>
                   <Label fx:id="mediaTtleLabel" alignment="CENTER_RIGHT" contentDisplay="CENTER" text="Media Title" />
                </children>
@@ -103,10 +100,30 @@
       </VBox>
    </top>
    <center>
-      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <HBox fx:id="mediaBox" alignment="CENTER" maxHeight="800.0" maxWidth="1500.0" BorderPane.alignment="CENTER">
          <children>
-            <MediaView fx:id="mediaView" fitHeight="200.0" fitWidth="200.0" />
+            <MediaView fx:id="mediaView">
+               <viewport>
+                  <Rectangle2D />
+               </viewport>
+            </MediaView>
          </children>
-      </Pane>
+      </HBox>
    </center>
+   <left>
+      <VBox alignment="TOP_CENTER" prefWidth="200.0" spacing="15.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="btnVelocidad" mnemonicParsing="false" prefWidth="200.0" text="Velocidad x2" />
+            <Button fx:id="btnTamanho" mnemonicParsing="false" prefWidth="200.0" text="Cambiar tamaño" />
+         </children>
+      </VBox>
+   </left>
+   <right>
+      <VBox prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Recientes" />
+            <ListView fx:id="recentMedia" prefWidth="200.0" />
+         </children>
+      </VBox>
+   </right>
 </BorderPane>
