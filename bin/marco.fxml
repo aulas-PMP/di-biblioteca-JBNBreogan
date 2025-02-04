@@ -111,16 +111,18 @@
       </HBox>
    </center>
    <left>
-      <VBox alignment="TOP_CENTER" prefWidth="200.0" spacing="15.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="editorBox" alignment="TOP_RIGHT" prefWidth="200.0" spacing="15.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="btnVelocidad" mnemonicParsing="false" prefWidth="200.0" text="Velocidad x2" />
-            <Button fx:id="btnTamanho" mnemonicParsing="false" prefWidth="200.0" text="Cambiar tamaño" />
+            <Button fx:id="collapseEditor" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#collapseEdit" text="&lt;" />
+            <Button fx:id="btnVelocidad" mnemonicParsing="false" onAction="#cambiarVelocidad" prefWidth="200.0" text="Velocidad x2" />
+            <Button fx:id="btnTamanho" mnemonicParsing="false" onAction="#cambiarTamanho" prefWidth="200.0" text="Cambiar tamaño (solo videos)" />
          </children>
       </VBox>
    </left>
    <right>
-      <VBox prefWidth="200.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="libraryBox" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
+            <Button fx:id="collapseLibrary" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#collapseLib" text="&gt;" />
             <Label text="Recientes" />
             <ListView fx:id="recentMedia" prefWidth="200.0" />
          </children>

@@ -10,6 +10,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -20,6 +21,12 @@ public class marcoController {
 
     @FXML
     private Button btnPlay;
+
+    @FXML
+    private Button btnVelocidad;
+
+    @FXML
+    private Button collapseEditor;
 
     @FXML
     private Label lblDuration;
@@ -34,30 +41,48 @@ public class marcoController {
     private ProgressBar pgBar;
 
     @FXML
+    private VBox editorBox;
+
+    @FXML
+    private VBox libraryBox;
+
+    @FXML
     private ListView<String> recentMedia;
 
     private MediaPlayer mediaPlayer;
 
     private DoubleProperty progress = new SimpleDoubleProperty(0.0);
 
+    private boolean isEditorVisible = true;
+
     @FXML
     private HBox mediaBox;
 
     @FXML
+    private Button btnTamanho;
+
+    private final int[][] resoluciones = {
+            { 256, 144 }, // 144p
+            { 640, 360 }, // 360p
+            { 1280, 720 }, // 720p
+    };
+    private int resolucionActual = 0;
+
+    @FXML
     private void initialize() {
         mediaTtleLabel.setText("");
-        lblDuration.setText("00:00 / 00:00");  
+        lblDuration.setText("00:00 / 00:00");
 
         recentMedia.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
-                String selectedFileName = recentMedia.getSelectionModel().getSelectedItem();
-                if (selectedFileName != null) {
-                    playRecentMedia(selectedFileName);
+                String selectedItem = recentMedia.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    // Extraemos el nombre del archivo (sin la duración entre paréntesis)
+                    String fileName = selectedItem.split(" \\(")[0];
+                    playRecentMedia(fileName);
                 }
             }
-
         });
-        
 
         pgBar.setOnMouseClicked(event -> {
             if (mediaPlayer != null) {
@@ -68,7 +93,6 @@ public class marcoController {
                 mediaPlayer.seek(javafx.util.Duration.seconds(newTime));
             }
         });
-        
     }
 
     @FXML
@@ -86,11 +110,75 @@ public class marcoController {
     }
 
     @FXML
+    private void collapseEdit(ActionEvent event) {
+        if (isEditorVisible) {
+            btnTamanho.setVisible(false);
+            btnVelocidad.setVisible(false);
+            editorBox.setMinWidth(30);
+            editorBox.setMaxWidth(0);
+            collapseEditor.setText(">");
+        } else {
+            // Expande el VBox (vuelve a su tamaño original)
+            btnTamanho.setVisible(true);
+            btnVelocidad.setVisible(true);
+            editorBox.setMinWidth(editorBox.USE_COMPUTED_SIZE);
+            editorBox.setMaxWidth(editorBox.USE_COMPUTED_SIZE);
+            collapseEditor.setText("<");
+        }
+
+        // Alterna el estado
+        isEditorVisible = !isEditorVisible;
+    }
+
+    @FXML
+    private void collapseLib(ActionEvent event) {
+        libraryBox.setVisible(false);
+    }
+
+    @FXML
     void btnStop(MouseEvent event) {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             lblDuration.setText("00:00 / 00:00");
             btnPlay.setText("Play");
+        }
+    }
+
+    @FXML
+    void cambiarVelocidad(ActionEvent event) {
+        if (mediaPlayer != null) {
+            if (mediaPlayer.getRate() == 1.0) {
+                mediaPlayer.setRate(2.0);
+                btnVelocidad.setText("Velocidad x1");
+            } else {
+                mediaPlayer.setRate(1.0);
+                btnVelocidad.setText("Velocidad x2");
+            }
+        }
+    }
+
+    @FXML
+    void cambiarTamanho(ActionEvent event) {
+        if (mediaPlayer != null && mediaView.getMediaPlayer() != null) {
+            Media media = mediaPlayer.getMedia();
+
+            // Verifica si el archivo es un video (contiene video tracks)
+            boolean esVideo = media.getSource().endsWith(".mp4"); // Simple, pero funcional
+            if (!esVideo) {
+                System.out.println("No se puede cambiar la resolución porque es un audio.");
+                return;
+            }
+
+            // Obtiene la nueva resolución en el ciclo 144p -> 360p -> 720p -> 1080p -> 144p
+            int[] nuevaResolucion = resoluciones[resolucionActual];
+            mediaView.setFitWidth(nuevaResolucion[0]);
+            mediaView.setFitHeight(nuevaResolucion[1]);
+
+            // Actualiza el texto del botón
+            btnTamanho.setText("Resolución " + nuevaResolucion[1] + "p");
+
+            // Pasa a la siguiente resolución en el ciclo
+            resolucionActual = (resolucionActual + 1) % resoluciones.length;
         }
     }
 
@@ -124,8 +212,9 @@ public class marcoController {
 
             mediaPlayer.setOnReady(() -> {
                 String duration = formatTime(mediaPlayer.getTotalDuration().toSeconds());
-                if (!recentMedia.getItems().contains(fileName)) {
-                    recentMedia.getItems().add(fileName + " (" + duration + ")");
+                String itemText = fileName + " (" + duration + ")";
+                if (!recentMedia.getItems().contains(itemText)) {
+                    recentMedia.getItems().add(itemText);
                 }
             });
 
@@ -188,7 +277,7 @@ public class marcoController {
         mediaPlayer = new MediaPlayer(media);
         mediaView.setMediaPlayer(mediaPlayer);
         configureMediaPlayer();
-        mediaTtleLabel.setText(fileName);
+        mediaTtleLabel.setText(fileName); // Muestra el nombre del archivo en el label
         mediaPlayer.setOnPlaying(() -> btnPlay.setText("Pause"));
         mediaPlayer.setAutoPlay(true);
     }
