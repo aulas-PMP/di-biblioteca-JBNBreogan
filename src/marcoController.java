@@ -12,6 +12,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -234,18 +236,55 @@ public class marcoController {
 
             showFileInfoDialog(selectedFile);
 
+            // Obtener nombre del archivo y verificar su extensión
+            String fileName = selectedFile.getName();
             Media media = new Media(selectedFile.toURI().toString());
+
+            // Limpiar mediaPlayer previo si existiera
             if (mediaPlayer != null) {
                 mediaPlayer.dispose();
             }
 
-            mediaPlayer = new MediaPlayer(media);
-            mediaView.setMediaPlayer(mediaPlayer);
-            configureMediaPlayer();
+            if (fileName.endsWith(".mp3")) { // Si es un archivo de audio
+                mediaView.setVisible(false); // Ocultar MediaView
+                ImageView imageView = new ImageView(new Image("fondo.png"));
 
-            String fileName = selectedFile.getName();
-            String title = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
-            mediaTtleLabel.setText(title);
+                // Ajustamos el tamaño de la imagen a 720p
+                imageView.setFitWidth(1280); // 1280px de ancho
+                imageView.setFitHeight(720); // 720px de alto
+                imageView.setPreserveRatio(true); // Mantener las proporciones
+
+                mediaBox.getChildren().setAll(imageView); // Mostrar la imagen de fondo
+
+                mediaPlayer = new MediaPlayer(media); // Crear MediaPlayer para el audio
+                mediaPlayer.setAutoPlay(true);
+                mediaPlayer.setOnPlaying(() -> btnPlay.setText("Pause"));
+
+                mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
+                    updateDurationLabel(); // Actualiza la etiqueta de duración
+                    double currentTime = newValue.toSeconds();
+                    double totalDuration = mediaPlayer.getTotalDuration().toSeconds();
+                    if (totalDuration > 0) {
+                        progress.set(currentTime / totalDuration); // Actualiza la barra de progreso
+                    }
+                });
+                pgBar.progressProperty().bind(progress);
+
+                mediaPlayer.setOnEndOfMedia(() -> {
+                    btnPlay.setText("Play");
+                    mediaPlayer.seek(javafx.util.Duration.ZERO); // Reiniciar el audio al final
+                });
+
+            } else { // Si es un archivo de video
+                mediaView.setVisible(true); // Mostrar MediaView
+                mediaBox.getChildren().setAll(mediaView); // Mostrar el video
+
+                mediaPlayer = new MediaPlayer(media); // Crear MediaPlayer para el video
+                mediaView.setMediaPlayer(mediaPlayer); // Vincular mediaView con el MediaPlayer
+                configureMediaPlayer();
+                mediaPlayer.setAutoPlay(true);
+                mediaTtleLabel.setText(fileName);
+            }
 
             mediaPlayer.setOnReady(() -> {
                 String duration = formatTime(mediaPlayer.getTotalDuration().toSeconds());
@@ -254,9 +293,6 @@ public class marcoController {
                     recentMedia.getItems().add(itemText);
                 }
             });
-
-            mediaPlayer.setOnPlaying(() -> btnPlay.setText("Pause"));
-            mediaPlayer.setAutoPlay(true);
         }
     }
 
@@ -346,8 +382,8 @@ public class marcoController {
         Scene dialogScene = new Scene(dialogVBox);
         dialogStage.setScene(dialogScene);
 
-        dialogStage.setMinWidth(400); 
-        dialogStage.setMinHeight(150); 
+        dialogStage.setMinWidth(400);
+        dialogStage.setMinHeight(150);
 
         dialogStage.show();
     }
