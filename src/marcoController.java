@@ -4,6 +4,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -62,6 +64,7 @@ public class marcoController {
     private DoubleProperty progress = new SimpleDoubleProperty(0.0);
 
     private boolean isEditorVisible = true;
+    private boolean isLibraryVisible = true;
 
     @FXML
     private HBox mediaBox;
@@ -126,37 +129,31 @@ public class marcoController {
             editorBox.setMaxWidth(0);
             collapseEditor.setText(">");
         } else {
-            // Expande el VBox (vuelve a su tamaño original)
             btnTamanho.setVisible(true);
             btnVelocidad.setVisible(true);
             editorBox.setMinWidth(editorBox.USE_COMPUTED_SIZE);
             editorBox.setMaxWidth(editorBox.USE_COMPUTED_SIZE);
             collapseEditor.setText("<");
         }
-
-        // Alterna el estado
         isEditorVisible = !isEditorVisible;
     }
 
     @FXML
     private void collapseLib(ActionEvent event) {
-        if (isEditorVisible) {
+        if (isLibraryVisible) {
             recentMedia.setVisible(false);
             recentLbl.setVisible(false);
             libraryBox.setMinWidth(50);
             libraryBox.setMaxWidth(0);
             collapseLibrary.setText("<");
         } else {
-            // Expande el VBox (vuelve a su tamaño original)
             recentMedia.setVisible(true);
             recentLbl.setVisible(true);
             libraryBox.setMinWidth(editorBox.USE_COMPUTED_SIZE);
             libraryBox.setMaxWidth(editorBox.USE_COMPUTED_SIZE);
             collapseLibrary.setText(">");
         }
-
-        // Alterna el estado
-        isEditorVisible = !isEditorVisible;
+        isLibraryVisible = !isLibraryVisible;
     }
 
     @FXML
@@ -234,6 +231,9 @@ public class marcoController {
         File selectedFile = fileChooser.showOpenDialog(stage);
 
         if (selectedFile != null) {
+
+            showFileInfoDialog(selectedFile);
+
             Media media = new Media(selectedFile.toURI().toString());
             if (mediaPlayer != null) {
                 mediaPlayer.dispose();
@@ -258,6 +258,16 @@ public class marcoController {
             mediaPlayer.setOnPlaying(() -> btnPlay.setText("Pause"));
             mediaPlayer.setAutoPlay(true);
         }
+    }
+
+    @FXML
+    void selectMediaAgain(ActionEvent event) {
+        selectMedia(event);
+    }
+
+    @FXML
+    void vaciarLib(ActionEvent event) {
+        recentMedia.getItems().clear();
     }
 
     private void configureMediaPlayer() {
@@ -314,8 +324,32 @@ public class marcoController {
         mediaPlayer = new MediaPlayer(media);
         mediaView.setMediaPlayer(mediaPlayer);
         configureMediaPlayer();
-        mediaTtleLabel.setText(fileName); // Muestra el nombre del archivo en el label
+        mediaTtleLabel.setText(fileName);
         mediaPlayer.setOnPlaying(() -> btnPlay.setText("Pause"));
         mediaPlayer.setAutoPlay(true);
     }
+
+    private void showFileInfoDialog(File selectedFile) {
+        Stage dialogStage = new Stage();
+        dialogStage.initOwner((Stage) mediaView.getScene().getWindow());
+        dialogStage.setTitle("Información del archivo");
+
+        VBox dialogVBox = new VBox(10);
+        dialogVBox.setPadding(new Insets(20));
+
+        Label fileNameLabel = new Label("Nombre de archivo: " + selectedFile.getName());
+        Label filePathLabel = new Label("Ruta: " + selectedFile.getAbsolutePath());
+        Label fileSizeLabel = new Label("Tamaño: " + selectedFile.length() / 1024 + " KB");
+
+        dialogVBox.getChildren().addAll(fileNameLabel, filePathLabel, fileSizeLabel);
+
+        Scene dialogScene = new Scene(dialogVBox);
+        dialogStage.setScene(dialogScene);
+
+        dialogStage.setMinWidth(400); 
+        dialogStage.setMinHeight(150); 
+
+        dialogStage.show();
+    }
+
 }
