@@ -125,7 +125,7 @@
          <children>
             <Button fx:id="collapseLibrary" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#collapseLib" text="&gt;" />
             <Label fx:id="recentLbl" text="Recientes" />
-            <ListView fx:id="recentMedia" prefWidth="200.0" />
+            <ListView fx:id="recentMedia" prefWidth="200.0" VBox.Vgrow="ALWAYS"/>
          </children>
       </VBox>
    </right>
