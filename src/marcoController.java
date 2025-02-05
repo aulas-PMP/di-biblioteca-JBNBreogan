@@ -4,6 +4,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -29,7 +31,13 @@ public class marcoController {
     private Button collapseEditor;
 
     @FXML
+    private Button collapseLibrary;
+
+    @FXML
     private Label lblDuration;
+
+    @FXML
+    private Label recentLbl;
 
     @FXML
     private MediaView mediaView;
@@ -114,7 +122,7 @@ public class marcoController {
         if (isEditorVisible) {
             btnTamanho.setVisible(false);
             btnVelocidad.setVisible(false);
-            editorBox.setMinWidth(30);
+            editorBox.setMinWidth(50);
             editorBox.setMaxWidth(0);
             collapseEditor.setText(">");
         } else {
@@ -132,16 +140,45 @@ public class marcoController {
 
     @FXML
     private void collapseLib(ActionEvent event) {
-        libraryBox.setVisible(false);
+        if (isEditorVisible) {
+            recentMedia.setVisible(false);
+            recentLbl.setVisible(false);
+            libraryBox.setMinWidth(50);
+            libraryBox.setMaxWidth(0);
+            collapseLibrary.setText("<");
+        } else {
+            // Expande el VBox (vuelve a su tamaño original)
+            recentMedia.setVisible(true);
+            recentLbl.setVisible(true);
+            libraryBox.setMinWidth(editorBox.USE_COMPUTED_SIZE);
+            libraryBox.setMaxWidth(editorBox.USE_COMPUTED_SIZE);
+            collapseLibrary.setText(">");
+        }
+
+        // Alterna el estado
+        isEditorVisible = !isEditorVisible;
     }
 
     @FXML
     void btnStop(MouseEvent event) {
         if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            lblDuration.setText("00:00 / 00:00");
             btnPlay.setText("Play");
+            mediaTtleLabel.setText("");
+            mediaPlayer.stop();
         }
+        lblDuration.setText("00:00 / 00:00");
+    }
+
+    @FXML
+    void showInfo(ActionEvent event) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+
+        alert.setTitle("Información acerca del reproductor multimedia");
+        alert.setHeaderText("Detalles de la aplicación");
+
+        alert.setContentText("Nombre de la aplicación: Multimedia Re:Player\nAutor: Breogán Fernández Tacón");
+
+        alert.showAndWait();
     }
 
     @FXML

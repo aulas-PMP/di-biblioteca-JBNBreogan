@@ -1,0 +1,86 @@
+.root {
+    -fx-background-color: black; /* Fondo negro */
+}
+
+.button {
+    -fx-background-color: #532E85; /* Púrpura EVA-01 */
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-border-color: #74FF67; /* Verde neón */
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px 16px;
+    -fx-effect: dropshadow(gaussian, rgba(116, 255, 103, 0.6), 10, 0.5, 0, 0);
+    -fx-transition: all 0.3s;
+}
+
+/* Efecto hover */
+.button:hover {
+    -fx-background-color: #74FF67; /* Verde neón */
+    -fx-text-fill: black;
+    -fx-border-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.8), 15, 0.6, 0, 0);
+}
+
+/* Efecto de clic */
+.button:pressed {
+    -fx-background-color: #FF7F27; /* Naranja (ojos de EVA-01) */
+    -fx-border-color: black;
+}
+
+.menu-bar {
+    -fx-background-color: #3C3C3C; /* Gris metálico */
+}
+
+.label {
+    -fx-text-fill: #FF7F27; /* Naranja (ojos) */
+}
+
+.progress-bar {
+    -fx-background-color: black; /* Fondo negro */
+    -fx-control-inner-background: black; /* Fondo interno */
+    -fx-box-border: black; /* Borde negro */
+}
+
+.progress-bar .track {
+    -fx-background-color: grey; /* Asegura que la pista sea negra */
+}
+
+.progress-bar .bar {
+    -fx-background-color: #74FF67; /* Verde neón */
+}
+
+#editorBox, #libraryBox {
+    -fx-background-color: #2A2A2A; /* Gris oscuro */
+    -fx-border-color: #3C3C3C; /* Borde un poco más claro */
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.1), 10, 0.5, 0, 0);
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+}
+
+#recentMedia {
+    -fx-background-color: #1F1F1F; /* Gris muy oscuro */
+    -fx-border-color: #74FF67; /* Verde neón */
+    -fx-border-width: 2px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 5px;
+}
+
+#recentMedia .list-cell {
+    -fx-background-color: #2A2A2A; /* Fondo de cada casilla en gris oscuro */
+    -fx-text-fill: white; /* Texto blanco */
+    -fx-border-color: transparent; /* Sin borde alrededor de las casillas */
+}
+
+#recentMedia .list-cell:hover {
+    -fx-background-color: #74FF67; /* Verde neón cuando el mouse pasa sobre la casilla */
+    -fx-text-fill: black; /* Texto negro cuando está en hover */
+}
+
+
+
+
+

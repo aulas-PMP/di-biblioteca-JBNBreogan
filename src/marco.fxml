@@ -46,7 +46,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.media.MediaView?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="556.0" prefWidth="801.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="marcoController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="556.0" prefWidth="801.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="marcoController">
    <bottom>
       <VBox prefHeight="91.0" prefWidth="801.0" BorderPane.alignment="CENTER">
          <children>
@@ -74,21 +74,26 @@
          <children>
             <MenuBar>
               <menus>
-                <Menu mnemonicParsing="false" text="File">
+                <Menu mnemonicParsing="false" text="Archivo">
                   <items>
                     <MenuItem mnemonicParsing="false" text="Close" />
                   </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Edit">
+                <Menu mnemonicParsing="false" text="Biblioteca">
                   <items>
                     <MenuItem mnemonicParsing="false" text="Delete" />
                   </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Help">
+                <Menu mnemonicParsing="false" text="Ver">
                   <items>
                     <MenuItem mnemonicParsing="false" text="About" />
                   </items>
                 </Menu>
+                  <Menu mnemonicParsing="false" text="Acerca">
+                     <items>
+                        <MenuItem fx:id="acercaDe" mnemonicParsing="false" onAction="#showInfo" text="Info aplicacion" />
+                     </items>
+                  </Menu>
               </menus>
             </MenuBar>
             <HBox alignment="CENTER">
@@ -123,7 +128,7 @@
       <VBox fx:id="libraryBox" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
             <Button fx:id="collapseLibrary" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#collapseLib" text="&gt;" />
-            <Label text="Recientes" />
+            <Label fx:id="recentLbl" text="Recientes" />
             <ListView fx:id="recentMedia" prefWidth="200.0" />
          </children>
       </VBox>
